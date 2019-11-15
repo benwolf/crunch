@@ -1,4 +1,4 @@
-COMPILE_OPTIONS = -O3 -fomit-frame-pointer -ffast-math -fno-math-errno -g -fno-strict-aliasing -Wall -Wno-unused-value -Wno-unused -march=core2
+COMPILE_OPTIONS = -O3 -fPIC -fomit-frame-pointer -ffast-math -fno-math-errno -g -fno-strict-aliasing -Wall -Wno-unused-value -Wno-unused -march=core2
 LINKER_OPTIONS = -lpthread -g
 
 OBJECTS = \
@@ -79,8 +79,17 @@ OBJECTS = \
 
 all: crunch
 
+clean:
+	rm -f *.o *.so
+
 %.o: %.cpp
 	g++ $< -o $@ -c $(COMPILE_OPTIONS)
+
+libcrunch.a: $(OBJECTS) crunch.o corpus_gen.o corpus_test.o
+	ar r libcrunch.a $(OBJECTS)
+
+libcrunch.so: $(OBJECTS) crunch.o corpus_gen.o corpus_test.o
+	g++ -shared $(OBJECTS) -o libcrunch.so $(LINKER_OPTIONS)
 
 crunch.o: ../crunch/crunch.cpp
 	g++ $< -o $@ -c -I../inc -I../crnlib $(COMPILE_OPTIONS)
